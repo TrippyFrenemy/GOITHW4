@@ -67,8 +67,21 @@ def socket_server():
             try:
                 message = json.loads(data.decode('utf-8'))
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-                with open('storage/data.json', 'a') as file:
-                    file.write(f'"{timestamp}": {json.dumps(message)},\n')
+
+                # Спочатку завантажте існуючі дані з JSON-файлу (якщо вони є)
+                try:
+                    with open('storage/data.json', 'r') as file:
+                        existing_data = json.load(file)
+                except FileNotFoundError:
+                    existing_data = {}
+
+                # Оновіть дані
+                existing_data[timestamp] = message
+
+                # Збережіть оновлені дані назад у JSON-файл
+                with open('storage/data.json', 'w') as file:
+                    json.dump(existing_data, file)
+
             except json.JSONDecodeError:
                 print("Invalid JSON data received")
 
